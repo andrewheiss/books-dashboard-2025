@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap');
+
+/*-- scss:defaults --*/
+
+$font-family-sans-serif: Libre Franklin, sans-serif !default;
+
+// Colors from the Prism palette at https://carto.com/carto-colors/
+$navbar-bg: #666666;
+
+$colors: (
+    alexander: #1D6996,
+    zoe: #5F4690,
+    benjamin: #0F8554,
+    miriam: #CC503E,
+    rachel: #38A6A5,
+    nancy: #94346E,
+    andrew: #E17C05
+);
+
+
+/*-- scss:rules --*/
+
+thead th {
+    text-transform: none;
+}
+
+// Hide border of cards when they're nested inside a card-body 
+// (e.g. Observable Table inside a manual card)
+.card-body > .card {
+    border: none;
+    box-shadow: none;
+}
+
+.card-header p {
+    margin-bottom: 0;
+}
+
+.search-bar {
+    margin-bottom: 1em;
+    font-size: 85%;
+    color: $navbar-bg;
+    
+    input[type="search"] {
+        border-width: 1px;
+    }
+}
+
+.cell.book-table {
+    table {
+        width: 100%;
+    }
+    
+    form {
+        padding-left: 0;
+    }
+}
+
+@each $name, $color in $colors {
+    .btn-#{$name} {
+        @include button-variant(
+            $background: mix(white, $color, 70%), 
+            $border: $color, 
+            $color: $color,
+            $hover-color: mix(black, $color, 30%)
+        );
+    }
+
+    .bg-#{$name},
+    .text-bg-#{$name},
+    .card-#{$name} .card-header {
+        background-color: $color;
+        color: color-contrast($color);
+    }
+
+    .border-#{$name} {
+        border-color: $color;
+    }
+}

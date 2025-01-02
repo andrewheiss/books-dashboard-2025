@@ -1,0 +1,579 @@
+---
+title: "The Heiss Family's 2025 books"
+execute:
+  echo: false
+  output: false
+format:
+  dashboard: 
+    scrolling: true
+include-before-body: 
+  text: |
+    <style>
+      #quarto-dashboard-header {
+        display: none;
+      }
+    </style>
+---
+
+::: {.content-hidden}
+↓ Include FontAwesome without shortcodes by cheating and adding a shortcode ↓
+https://github.com/quarto-ext/fontawesome/issues/30
+:::
+
+<div style="display:none;">{{< fa thumbs-up >}}</div>
+
+
+::: {.content-hidden}
+Avoid ugly repetitive OJS errors that appear while data is loading by providing a default data structure for each person, but with placeholder icons instead of actual content. These all get replaced either with the actual data from the API or with errors.
+
+Adapted in part from <https://github.com/quarto-dev/quarto-cli/discussions/7485>
+:::
+
+```{ojs}
+all_people = ["alexander", "andrew", "benjamin", "miriam", "nancy", "rachel", "zoe"]
+
+schema_loading = all_people
+  .reduce((obj, person) => {
+    obj[person] = {
+      name: [person],
+      count: [html`<i class="fa fa-clock fa-spin"></i>`],
+      most_recent: {
+        title: [html` <i class="fa-solid fa-ellipsis fa-fade"></i>`],
+        author: [html` <i class="fa-solid fa-ellipsis fa-fade"></i>`],
+        date: [html` <i class="fa-solid fa-ellipsis fa-fade"></i>`]
+      },
+      data: {
+        timestamp_local: null,
+        total: null
+      }
+    };
+    return obj;
+  }, {});
+
+schema_404 = all_people
+  .reduce((obj, person) => {
+    obj[person] = {
+      name: [person],
+      count: [html`<span class="fa-stack"><i class="fa-solid fa-cloud fa-stack-1x"></i><i class="fa-solid fa-slash fa-stack-1x" style="color:#FF4136"></i></span>`],
+      most_recent: {
+        title: [html` <i class="fa-solid fa-triangle-exclamation"></i>`],
+        author: [html` <i class="fa-solid fa-triangle-exclamation"></i>`],
+        date: [html` <i class="fa-solid fa-triangle-exclamation"></i>`]
+      },
+      data: {
+        timestamp_local: null,
+        total: null
+      }
+    };
+    return obj;
+  }, {});
+
+schema_error = all_people
+  .reduce((obj, person) => {
+    obj[person] = {
+      name: [person],
+      count: [html`<i class="fa-solid fa-bomb"></i>`],
+      most_recent: {
+        title: [html` <i class="fa-solid fa-bomb"></i>`],
+        author: [html` <i class="fa-solid fa-bomb"></i>`],
+        date: [html` <i class="fa-solid fa-bomb"></i>`]
+      },
+      data: {
+        timestamp_local: null,
+        total: null
+      }
+    };
+    return obj;
+  }, {});
+```
+
+```{ojs}
+d3 = require("d3")
+
+books = {
+  // Provide an empty array with placeholder values until the data loads
+  yield schema_loading
+  // yield undefined
+  
+  yield fetch("https://api.andrewheiss.com/books?person=all&start_date=2025-01-01&end_date=2025-12-31")
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network error');
+      }
+      return response.json();
+    })
+    .then(people => {
+      for (let person in people) {
+        people[person].data = people[person].data.map(d => ({
+          ...d,
+          timestamp_local: new Date(d.timestamp_local_as_utc)
+        }));
+      }
+      return people;
+    })
+    .catch(error => {
+      if (error.message === 'Network error') {
+        console.error('Error with the API call:', error);
+        return schema_404;
+      } else {
+        console.error('Some general error:', error);
+        return schema_error;
+      }
+    });
+}
+```
+
+## Alexander row {height=20%}
+
+::: {.card title="Alexander's books" .card-alexander}
+```{=html}
+<p class="text-center">
+<a class="btn btn-alexander btn-lg" href="https://airtable.com/appPKXaQbf0nZJsuN/pag9iGipPatw8E34k/form?prefill_person=Alexander&hide_person=true" role="button" target="_blank" rel="noopener noreferrer">Write down a book</a>
+</p>
+```
+
+**Last read:** \${books.alexander.most_recent.author}, *\${books.alexander.most_recent.title}* on \${books.alexander.most_recent.date}
+:::
+
+
+::: {.valuebox icon="book" color="alexander"}
+Alexander's total books
+
+${books.alexander.count[0]}
+:::
+
+```{ojs}
+//| output: true
+Plot.plot({
+  style: {
+    fontSize: "14px",
+    fontFamily: "Libre Franklin",
+  },
+  
+  marginBottom: 0,
+  marginLeft: 0,
+  y: {
+    label: "Books read",
+    grid: false,
+  },
+  x: {
+    label: "Month",
+    domain: [new Date("2024-01-01"), new Date("2024-12-31")]
+  },
+  marks: [
+    Plot.axisX({label: null, ticks: null}),
+    Plot.axisY({label: null, ticks: null}),
+
+    Plot.rectY(books.alexander.data, 
+      Plot.binX(
+        {y: "count"},  // Reducing function
+        {
+          x: "timestamp_local", 
+          y: "total", 
+          fill: "#1D6996",
+          interval: d3.utcMonth,
+          inset: 2,
+          tip: {
+            format: {
+              x1: (d) => d3.utcFormat("%B")(d),
+              x2: false,
+              y: true
+            }
+          }
+        }
+      )
+    )
+  ]
+})
+```
+
+
+## Zoë row {height=20%}
+
+::: {.card title="Zoë's books" .card-zoe}
+```{=html}
+<p class="text-center">
+<a class="btn btn-zoe btn-lg" href="https://airtable.com/appPKXaQbf0nZJsuN/pagKW8yyQDpq4XMsN/form?prefill_person=Zoë&hide_person=true" role="button" target="_blank" rel="noopener noreferrer">Write down a book</a>
+</p>
+```
+
+**Last read:** \${books.zoe.most_recent.author}, *\${books.zoe.most_recent.title}* on \${books.zoe.most_recent.date}
+:::
+
+
+::: {.valuebox icon="book" color="zoe"}
+Zoë's total books
+
+${books.zoe.count[0]}
+:::
+
+
+```{ojs}
+//| output: true
+Plot.plot({
+  style: {
+    fontSize: "14px",
+    fontFamily: "Libre Franklin",
+  },
+  marginBottom: 0,
+  marginLeft: 0,
+  y: {
+    label: "Books read",
+    grid: false,
+  },
+  x: {
+    label: "Month",
+    domain: [new Date("2024-01-01"), new Date("2024-12-31")]
+  },
+  marks: [
+    Plot.axisX({label: null, ticks: null}),
+    Plot.axisY({label: null, ticks: null}),
+
+    Plot.rectY(books.zoe.data, 
+      Plot.binX(
+        {y: "count"},  // Reducing function
+        {
+          x: "timestamp_local", 
+          y: "total", 
+          fill: "#5F4690",
+          size: 5,
+          interval: d3.utcMonth,
+          inset: 2,
+          tip: {
+            format: {
+              x1: (d) => d3.utcFormat("%B")(d),
+              x2: false,
+              y: true
+            }
+          }
+        }
+      )
+    )
+  ]
+})
+```
+
+
+## Benjamin row {height=20%}
+
+::: {.card title="Benjamin's books" .card-benjamin}
+```{=html}
+<p class="text-center">
+<a class="btn btn-benjamin btn-lg" href="https://airtable.com/appPKXaQbf0nZJsuN/pag1lodqv7vZ4mWN6/form?prefill_person=Benjamin&hide_person=true" role="button" target="_blank" rel="noopener noreferrer">Write down a book</a>
+</p>
+```
+
+**Last read:** \${books.benjamin.most_recent.author}, *\${books.benjamin.most_recent.title}* on \${books.benjamin.most_recent.date}
+:::
+
+
+::: {.valuebox icon="book" color="benjamin"}
+Benjamin's total books
+
+${books.benjamin.count[0]}
+:::
+
+
+```{ojs}
+//| output: true
+Plot.plot({
+  style: {
+    fontSize: "14px",
+    fontFamily: "Libre Franklin",
+  },
+  marginBottom: 0,
+  marginLeft: 0,
+  y: {
+    label: "Books read",
+    grid: false,
+  },
+  x: {
+    label: "Month",
+    domain: [new Date("2024-01-01"), new Date("2024-12-31")]
+  },
+  marks: [
+    Plot.axisX({label: null, ticks: null}),
+    Plot.axisY({label: null, ticks: null}),
+
+    Plot.rectY(books.benjamin.data, 
+      Plot.binX(
+        {y: "count"},  // Reducing function
+        {
+          x: "timestamp_local", 
+          y: "total", 
+          fill: "#0F8554",
+          interval: d3.utcMonth,
+          inset: 2,
+          tip: {
+            format: {
+              x1: (d) => d3.utcFormat("%B")(d),
+              x2: false,
+              y: true
+            }
+          }
+        }
+      )
+    )
+  ]
+})
+```
+
+
+## Miriam row {height=20%}
+
+::: {.card title="Miriam's books" .card-miriam}
+```{=html}
+<p class="text-center">
+<a class="btn btn-miriam btn-lg" href="https://www.goodreads.com/" role="button" target="_blank" rel="noopener noreferrer">Write down a book</a>
+</p>
+```
+
+**Last read:** \${books.miriam.most_recent.author}, *\${books.miriam.most_recent.title}* on \${books.miriam.most_recent.date}
+:::
+
+
+::: {.valuebox icon="book" color="miriam"}
+Miriam's total books
+
+${books.miriam.count[0]}
+:::
+
+
+```{ojs}
+//| output: true
+Plot.plot({
+  style: {
+    fontSize: "14px",
+    fontFamily: "Libre Franklin",
+  },
+  marginBottom: 0,
+  marginLeft: 0,
+  y: {
+    label: "Books read",
+    grid: false,
+  },
+  x: {
+    label: "Month",
+    domain: [new Date("2024-01-01"), new Date("2024-12-31")]
+  },
+  marks: [
+    Plot.axisX({label: null, ticks: null}),
+    Plot.axisY({label: null, ticks: null}),
+
+    Plot.rectY(books.miriam.data, 
+      Plot.binX(
+        {y: "count"},  // Reducing function
+        {
+          x: "timestamp_local", 
+          y: "total", 
+          fill: "#CC503E",
+          interval: d3.utcMonth,
+          inset: 2,
+          tip: {
+            format: {
+              x1: (d) => d3.utcFormat("%B")(d),
+              x2: false,
+              y: true
+            }
+          }
+        }
+      )
+    )
+  ]
+})
+```
+
+
+## Rachel row {height=20%}
+
+::: {.card title="Rachel's books" .card-rachel}
+```{=html}
+<p class="text-center">
+<a class="btn btn-rachel btn-lg" href="https://www.goodreads.com/" role="button" target="_blank" rel="noopener noreferrer">Write down a book</a>
+</p>
+```
+
+**Last read:** \${books.rachel.most_recent.author}, *\${books.rachel.most_recent.title}* on \${books.rachel.most_recent.date}
+:::
+
+
+::: {.valuebox icon="book" color="rachel"}
+Rachel's total books
+
+${books.rachel.count[0]}
+:::
+
+
+```{ojs}
+//| output: true
+Plot.plot({
+  style: {
+    fontSize: "14px",
+    fontFamily: "Libre Franklin",
+  },
+  marginBottom: 0,
+  marginLeft: 0,
+  y: {
+    label: "Books read",
+    grid: false,
+  },
+  x: {
+    label: "Month",
+    domain: [new Date("2024-01-01"), new Date("2024-12-31")]
+  },
+  marks: [
+    Plot.axisX({label: null, ticks: null}),
+    Plot.axisY({label: null, ticks: null}),
+
+    Plot.rectY(books.rachel.data, 
+      Plot.binX(
+        {y: "count"},  // Reducing function
+        {
+          x: "timestamp_local", 
+          y: "total", 
+          fill: "#38A6A5",
+          interval: d3.utcMonth,
+          inset: 2,
+          tip: {
+            format: {
+              x1: (d) => d3.utcFormat("%B")(d),
+              x2: false,
+              y: true
+            }
+          }
+        }
+      )
+    )
+  ]
+})
+```
+
+
+## Nancy row {height=20%}
+
+::: {.card title="Nancy's books" .card-nancy}
+```{=html}
+<p class="text-center">
+<a class="btn btn-nancy btn-lg" href="https://www.goodreads.com/" role="button" target="_blank" rel="noopener noreferrer">Write down a book</a>
+</p>
+```
+
+**Last read:** \${books.nancy.most_recent.author}, *\${books.nancy.most_recent.title}* on \${books.nancy.most_recent.date}
+:::
+
+
+::: {.valuebox icon="book" color="nancy"}
+Nancy's total books
+
+${books.nancy.count[0]}
+:::
+
+
+```{ojs}
+//| output: true
+Plot.plot({
+  style: {
+    fontSize: "14px",
+    fontFamily: "Libre Franklin",
+  },
+  marginBottom: 0,
+  marginLeft: 0,
+  y: {
+    label: "Books read",
+    grid: false,
+  },
+  x: {
+    label: "Month",
+    domain: [new Date("2024-01-01"), new Date("2024-12-31")]
+  },
+  marks: [
+    Plot.axisX({label: null, ticks: null}),
+    Plot.axisY({label: null, ticks: null}),
+
+    Plot.rectY(books.nancy.data, 
+      Plot.binX(
+        {y: "count"},  // Reducing function
+        {
+          x: "timestamp_local", 
+          y: "total", 
+          fill: "#94346E",
+          interval: d3.utcMonth,
+          inset: 2,
+          tip: {
+            format: {
+              x1: (d) => d3.utcFormat("%B")(d),
+              x2: false,
+              y: true
+            }
+          }
+        }
+      )
+    )
+  ]
+})
+```
+
+
+## Andrew row {height=20%}
+
+::: {.card title="Andrew's books" .card-andrew}
+```{=html}
+<p class="text-center">
+<a class="btn btn-andrew btn-lg" href="https://www.goodreads.com/" role="button" target="_blank" rel="noopener noreferrer">Write down a book</a>
+</p>
+```
+
+**Last read:** \${books.andrew.most_recent.author}, *\${books.andrew.most_recent.title}* on \${books.andrew.most_recent.date}
+:::
+
+
+::: {.valuebox icon="book" color="andrew"}
+Andrew's total books
+
+${books.andrew.count[0]}
+:::
+
+
+```{ojs}
+//| output: true
+Plot.plot({
+  style: {
+    fontSize: "14px",
+    fontFamily: "Libre Franklin",
+  },
+  marginBottom: 0,
+  marginLeft: 0,
+  y: {
+    label: "Books read",
+    grid: false,
+  },
+  x: {
+    label: "Month",
+    domain: [new Date("2024-01-01"), new Date("2024-12-31")]
+  },
+  marks: [
+    Plot.axisX({label: null, ticks: null}),
+    Plot.axisY({label: null, ticks: null}),
+
+    Plot.rectY(books.andrew.data, 
+      Plot.binX(
+        {y: "count"},  // Reducing function
+        {
+          x: "timestamp_local", 
+          y: "total", 
+          fill: "#E17C05",
+          interval: d3.utcMonth,
+          inset: 2,
+          tip: {
+            format: {
+              x1: (d) => d3.utcFormat("%B")(d),
+              x2: false,
+              y: true
+            }
+          }
+        }
+      )
+    )
+  ]
+})
+```
