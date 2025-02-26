@@ -158,7 +158,7 @@ Plot.plot({
   },
   x: {
     label: "Month",
-    domain: [new Date("2024-01-01"), new Date("2024-12-31")]
+    domain: [new Date("2025-01-01"), new Date("2025-12-31")]
   },
   marks: [
     Plot.axisX({label: null, ticks: null}),
@@ -223,7 +223,7 @@ Plot.plot({
   },
   x: {
     label: "Month",
-    domain: [new Date("2024-01-01"), new Date("2024-12-31")]
+    domain: [new Date("2025-01-01"), new Date("2025-12-31")]
   },
   marks: [
     Plot.axisX({label: null, ticks: null}),
@@ -289,7 +289,7 @@ Plot.plot({
   },
   x: {
     label: "Month",
-    domain: [new Date("2024-01-01"), new Date("2024-12-31")]
+    domain: [new Date("2025-01-01"), new Date("2025-12-31")]
   },
   marks: [
     Plot.axisX({label: null, ticks: null}),
@@ -354,7 +354,7 @@ Plot.plot({
   },
   x: {
     label: "Month",
-    domain: [new Date("2024-01-01"), new Date("2024-12-31")]
+    domain: [new Date("2025-01-01"), new Date("2025-12-31")]
   },
   marks: [
     Plot.axisX({label: null, ticks: null}),
@@ -419,7 +419,7 @@ Plot.plot({
   },
   x: {
     label: "Month",
-    domain: [new Date("2024-01-01"), new Date("2024-12-31")]
+    domain: [new Date("2025-01-01"), new Date("2025-12-31")]
   },
   marks: [
     Plot.axisX({label: null, ticks: null}),
@@ -484,7 +484,7 @@ Plot.plot({
   },
   x: {
     label: "Month",
-    domain: [new Date("2024-01-01"), new Date("2024-12-31")]
+    domain: [new Date("2025-01-01"), new Date("2025-12-31")]
   },
   marks: [
     Plot.axisX({label: null, ticks: null}),
@@ -549,7 +549,7 @@ Plot.plot({
   },
   x: {
     label: "Month",
-    domain: [new Date("2024-01-01"), new Date("2024-12-31")]
+    domain: [new Date("2025-01-01"), new Date("2025-12-31")]
   },
   marks: [
     Plot.axisX({label: null, ticks: null}),
